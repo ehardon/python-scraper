@@ -16,11 +16,10 @@ jobs:
         id: check_prs
 
 #    Checkout branch
-      - uses: actions/checkout@v2
+      - if: ${{ steps.check_prs.outputs.prs }} == '1'
+        uses: actions/checkout@v2
         with:
-          PRS: ${{ steps.check_prs.outputs.prs }}
           ref: ${{ github.event.client_payload.ref }}
-        if: $PRS >= 1
       - run: echo ${{ github.event.client_payload.ref }}
 
 
