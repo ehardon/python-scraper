@@ -13,13 +13,13 @@ jobs:
           BRANCH: ${{github.event.client_payload.ref}}
         run: |
           PRS=$(curl -X GET -u testing:${{ secrets.TESTING_TOKEN }} -H "Content-Type: application/vnd.github.v3+json" "https://api.github.com/repos/ehardon/python-scraper/pulls?head=ehardon:$BRANCH" | jq length)
+          echo $PRS
           echo "::set-output name=prs::$PRS"
         id: check_prs
 
       - name: Checkout branch if conditions are met
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.ref }}
-          pull_requests: ${{ steps.check_prs.outputs.prs }}
-        if: pull_requests == '1'
-        uses: actions/checkout@v2
-      - run: echo ${{ github.event.client_payload.ref }}
+        if: steps.check_prs.outputs.prs == 1
+        run: echo ${{ github.event.client_payload.ref }}
