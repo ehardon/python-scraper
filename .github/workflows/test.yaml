@@ -3,10 +3,22 @@ on:
   repository_dispatch:
     types: [build-test]
 jobs:
-  tests:
+  build:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Check if branch is involved in a PR
+        env:
+          BRANCH: ${{github.event.client_payload.ref}}
+        run: |
+          PRS=$(curl -X GET -u testing:${{ secrets.TESTING_TOKEN }} -H "Content-Type: application/vnd.github.v3+json" "https://api.github.com/repos/ehardon/python-scraper/pulls?head=ehardon:$BRANCH" | jq length)
+
+#    Checkout branch
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.ref }}
+        if: PRS >= 1
       - run: echo ${{ github.event.client_payload.ref }}
+
+
+#     Trigger Jenkins build
